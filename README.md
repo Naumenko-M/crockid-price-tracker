@@ -1,6 +1,6 @@
 # Crockid Price Tracker
 
-Учебный проект: анализ и сравнение цен на продукцию Crockid на Ozon и Wildberries.
+Учебный проект: анализ и сравнение цен на продукцию Crockid на Wildberries.
 
 ## Стек
 Python, pandas, SQLite, cron, Jupyter Notebook
