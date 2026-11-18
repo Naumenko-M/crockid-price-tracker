@@ -4,6 +4,7 @@ venv/
 
 # Данные (база и CSV не должны попадать на GitHub)
 data/
+downloaded_files/
 *.db
 *.csv
 
