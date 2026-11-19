@@ -22,7 +22,7 @@ for p in products:
     raw = p.raw if isinstance(p.raw, dict) else {}
     article = raw.get('id')
 
-    # Собираем все размеры с product и basic
+    # Собираем все размеры с ценами product и basic
     sizes_list = []
     for s in raw.get('sizes', []):
         prod = s.get('price', {}).get('product')
@@ -34,19 +34,24 @@ for p in products:
         })
 
     # Минимальный product и соответствующий basic среди размеров
-    products_prices = [x['product'] for x in sizes_list if x['product']]
-    basics_prices = [x['basic'] for x in sizes_list if x['basic']]
+    if sizes_list:
+        best = min(sizes_list, key=lambda x: x['product'] if x['product'] else float('inf'))
+        min_product = best['product']
+        min_basic = best['basic']
+    else:
+        min_product = None
+        min_basic = None
 
-    min_product = min(products_prices) if products_prices else None
-    min_basic = min(basics_prices) if basics_prices else None
-
-    # Ссылка на товар
-    url = f"https://www.wildberries.ru/catalog/{article}/detail.aspx" if article else None
+    # Извлекаем цвет товара и сохраняем в json
+    colors = raw.get('colors') or []
+    colors_names = [c.get('name') for c in colors if c.get('name')]
+    colors_json = json.dumps(colors_names, ensure_ascii=False)
 
     rows.append({
         'article': article,
         'name': raw.get('name'),
         'brand': raw.get('brand'),
+        'colors_json': colors_json,
         'price': min_product,
         'basic_price': min_basic,
         'sizes_json': json.dumps(sizes_list, ensure_ascii=False),
@@ -54,7 +59,6 @@ for p in products:
         'supplier': raw.get('supplier'),
         'rating': raw.get('reviewRating'),
         'feedbacks': raw.get('feedbacks'),
-        'url': url,
     })
 
 # Превращаем в DataFrame
@@ -83,4 +87,4 @@ df.to_csv('data/wb_clean.csv', index=False)
 print("Сохранено в data/wb_clean.csv")
 
 # Сохраняем в SQLite
-save_to_sqlite(df, marketplace='wildberries')
+save_to_sqlite(df)
